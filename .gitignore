@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+*.egg-info/
+
+# Django
+db.sqlite3
+core-backend/platform_core/media/datasets/*
+!core-backend/platform_core/media/datasets/.gitkeep
+
+# AI engine artifacts
+ai-engine/models/
+ai-engine/rag_index.faiss
+ai-engine/rag_data.pkl
+ai-engine/.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Editors
+.vscode/
+.idea/

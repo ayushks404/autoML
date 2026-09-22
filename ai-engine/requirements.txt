@@ -1,0 +1,19 @@
+fastapi
+uvicorn[standard]
+pandas<3
+scikit-learn
+joblib
+requests
+python-multipart
+
+# Explainability
+shap
+numpy
+
+# LLM (insights)
+langchain
+langchain-openai
+
+# RAG (memory)
+faiss-cpu
+sentence-transformers
