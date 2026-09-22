@@ -9,7 +9,6 @@ There is no dataset-specific configuration required — point it at a churn file
 - [Key Features](#key-features)
 - [Tech Stack](#tech-stack)
 - [System Architecture](#system-architecture)
-- [End-to-End Workflow](#end-to-end-workflow)
 - [AI Engine — Project / Training Flow](#ai-engine--project--training-flow)
 - [Project Status Lifecycle](#project-status-lifecycle)
 - [Repository Structure](#repository-structure)
@@ -60,49 +59,6 @@ flowchart LR
     style AI fill:#8957e5,color:#fff
     style DB fill:#555,color:#fff
     style RAG fill:#555,color:#fff
-```
-
-## End-to-End Workflow
-
-This sequence covers a full request: creating a project, kicking off training, and the two possible outcomes (success or failure).
-
-```mermaid
-sequenceDiagram
-    actor User
-    participant FE as React Frontend
-    participant DJ as Django API
-    participant AI as FastAPI AI Engine
-
-    User->>FE: Fill form (name, description, CSV)
-    FE->>DJ: POST /api/projects (multipart)
-    DJ->>DJ: Validate file (.csv only, ≤50MB)
-    DJ->>DJ: Save AIProject (status=training)
-    DJ->>AI: POST /start-training/{id} {dataset_path}
-    alt AI engine unreachable
-        DJ->>DJ: status=failed, error_message set
-        DJ-->>FE: 201 Created (project marked failed)
-    else AI engine accepts job
-        DJ-->>FE: 201 Created (status=training)
-        FE->>FE: Start 4s polling loop
-        AI->>AI: Load CSV, detect target + task type
-        AI->>AI: Run AutoML (train/evaluate N models)
-        AI->>DJ: POST /experiment-result/{id} (per model, best-effort)
-        AI->>AI: Explain best model (SHAP → permutation)
-        AI->>AI: Store + retrieve similar past runs (RAG)
-        AI->>AI: Generate LLM insights (→ templated fallback)
-        alt training succeeds
-            AI->>DJ: POST /training-result/{id} (full payload)
-            DJ->>DJ: status=completed, save metrics/insights
-        else exception at any step
-            AI->>DJ: POST /training-failed/{id} {error}
-            DJ->>DJ: status=failed, save error_message
-        end
-    end
-    loop every 4s while status is created/training
-        FE->>DJ: GET /api/projects
-        DJ-->>FE: current project list + statuses
-    end
-    FE-->>User: Render metrics, top features, leaderboard, insights
 ```
 
 ## AI Engine — Project / Training Flow
